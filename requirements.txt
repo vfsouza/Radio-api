@@ -25,8 +25,11 @@ numpy==2.2.6
 polars==1.36.1
 
 # Machine Learning
-torch==2.5.1
-torchvision==0.20.1
+# Using CPU-only versions for Railway (lighter and faster to install)
+--index-url https://download.pytorch.org/whl/cpu
+torch==2.5.1+cpu
+torchvision==0.20.1+cpu
+--index-url https://pypi.org/simple
 ultralytics==8.3.237
 
 # Utilities

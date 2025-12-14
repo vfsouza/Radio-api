@@ -5,6 +5,9 @@ from rest_framework.decorators import api_view
 from rest_framework.parsers import MultiPartParser, FormParser
 import base64
 import io
+import os
+from pathlib import Path
+from django.conf import settings
 
 
 class YOLODetectionView(APIView):
@@ -53,7 +56,30 @@ class YOLODetectionView(APIView):
 
             image = Image.open(io.BytesIO(image_bytes))
 
-            model = YOLO(r'../last.pt')
+            # Get model path from environment or use default
+            model_name = os.environ.get('YOLO_MODEL_NAME', 'last.pt')
+
+            # Build absolute path based on Django's BASE_DIR
+            model_path = Path(settings.BASE_DIR) / model_name
+
+            # Check if model exists
+            if not model_path.exists():
+                # Try alternative paths
+                alt_paths = [
+                    Path('/app') / model_name,  # Railway default
+                    Path.cwd() / model_name,     # Current working directory
+                ]
+
+                for alt_path in alt_paths:
+                    if alt_path.exists():
+                        model_path = alt_path
+                        break
+                else:
+                    # If still not found, use pre-trained model
+                    model_path = 'yolov8n.pt'  # Will auto-download
+
+            print(f"[DEBUG] Loading YOLO model from: {model_path}")
+            model = YOLO(str(model_path))
 
             results = model(image)
 
@@ -71,15 +97,20 @@ class YOLODetectionView(APIView):
 
             return detections
 
-        except ImportError:
+        except ImportError as e:
+            print(f"[ERROR] ImportError: {str(e)}")
             return [{
-                'message': 'YOLO not installed',
-                'note': 'Install with: pip install ultralytics',
+                'message': 'YOLO/Ultralytics not installed',
+                'error': str(e),
+                'note': 'Install with: pip install ultralytics torch torchvision',
                 'mock_detection': True,
                 'class_name': 'example',
                 'confidence': 0.95,
                 'bbox': [100, 100, 200, 200]
             }]
+        except Exception as e:
+            print(f"[ERROR] YOLO processing error: {str(e)}")
+            raise
 
 
 class ImageUploadView(APIView):
