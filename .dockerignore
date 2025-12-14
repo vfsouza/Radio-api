@@ -35,10 +35,9 @@ env/
 db.sqlite3
 
 # Training files (large files)
-*.pt
-*.pth
+# Note: last.pt is included for YOLO model
 fracatlas_training/
-last.pt
+*.pth
 
 # Docker
 Dockerfile
