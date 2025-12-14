@@ -50,7 +50,6 @@ Thumbs.db
 
 # Training artifacts
 runs/
-*.pt
 *.pth
 FracAtlas/
 fracatlas_training/

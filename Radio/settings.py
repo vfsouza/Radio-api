@@ -28,7 +28,13 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-x%@9xdxm9r@k_d1ja0=3b
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
+# ALLOWED_HOSTS configuration
+allowed_hosts_str = config('ALLOWED_HOSTS', default='localhost,127.0.0.1')
+ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_str.split(',') if host.strip()]
+
+# Allow Railway domain pattern
+if not DEBUG:
+    ALLOWED_HOSTS.append('.railway.app')
 
 
 # Application definition
@@ -169,4 +175,14 @@ CORS_ALLOWED_ORIGINS = [origin.strip() for origin in cors_origins.split(',')]
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CSRF Settings
-CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='', cast=Csv())
+csrf_origins_str = config('CSRF_TRUSTED_ORIGINS', default='')
+CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in csrf_origins_str.split(',') if origin.strip()]
+
+# Automatically add Railway domain if in production
+if not DEBUG:
+    # Add Railway backend domain
+    CSRF_TRUSTED_ORIGINS.append('https://*.railway.app')
+
+# Security settings
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = not DEBUG
