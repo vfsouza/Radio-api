@@ -1,0 +1,61 @@
+# Configuração de Treinamento YOLO11 - FracAtlas
+
+# Configurações do Modelo
+model:
+  size: 'm'  # Opções: 'n' (nano), 's' (small), 'm' (medium), 'l' (large), 'x' (xlarge)
+  pretrained: true
+  weights: 'yolo11m.pt'
+
+# Configurações de Treinamento
+training:
+  epochs: 100
+  batch_size: 16
+  image_size: 640
+  patience: 50  # Early stopping
+  device: 'cpu'  # Use 'cuda' ou '0' para GPU
+
+# Hiperparâmetros
+hyperparameters:
+  lr0: 0.01          # Taxa de aprendizado inicial
+  lrf: 0.01          # Taxa de aprendizado final
+  momentum: 0.937
+  weight_decay: 0.0005
+  warmup_epochs: 3.0
+  warmup_momentum: 0.8
+  box: 7.5           # Peso da loss de bounding box
+  cls: 0.5           # Peso da loss de classificação
+
+# Data Augmentation
+augmentation:
+  enabled: true
+  hsv_h: 0.015       # Matiz
+  hsv_s: 0.7         # Saturação
+  hsv_v: 0.4         # Valor (brilho)
+  degrees: 10.0      # Rotação
+  translate: 0.1     # Translação
+  scale: 0.5         # Escala
+  shear: 2.0         # Cisalhamento
+  flipud: 0.0        # Flip vertical (0.0 para raios-X)
+  fliplr: 0.5        # Flip horizontal
+  mosaic: 1.0        # Mosaic augmentation
+  mixup: 0.0         # Mixup augmentation
+
+# Dataset
+dataset:
+  name: 'FracAtlas'
+  classes: 1
+  class_names:
+    - 'fracture'
+
+# Diretórios
+paths:
+  project: 'fracatlas_training'
+  models: 'fracatlas_training/models'
+  datasets: 'fracatlas_training/datasets'
+  results: 'fracatlas_training/results'
+
+# Validação e Teste
+validation:
+  conf_threshold: 0.25  # Threshold de confiança
+  iou_threshold: 0.45   # Threshold de IoU para NMS
+  max_det: 300          # Máximo de detecções por imagem
